@@ -1,6 +1,5 @@
 use prusti_contracts::*;
-use crate::external_spec_option::*;
-// use crate::external_spec_result::*;
+use crate::external_spec::{option::*, result::*};
 
 pub struct StaticArray {
     arr: [Option<usize>; 32],
@@ -35,9 +34,7 @@ impl StaticArray {
     /// * The array is ordered so that all Some(_) elements occur at the beginning of the array, followed by all None elements.
     ///
     /// # Post-conditions:
-    /// * If the push fails, then all elements were Some(_) and remain unchanged
-    /// * If the push succeeds, then the element at the returned index is now Some(_)
-    /// * If the push succeeds, then the element at the returned index is equal to `value`
+    /// * If the push succeeds, then the element at the returned index is equal to Some(`value`)
     /// * If the push succeeds, then all the elements are unchanged except at the returned index 
     /// * If successful, then the array remains ordered with all Some elements followed by all None elements
     #[requires(forall(|i: usize| (i < self.arr.len() && self.arr[i].is_some()) ==> {
@@ -46,29 +43,18 @@ impl StaticArray {
     #[requires(forall(|i: usize| (i < self.arr.len() && self.arr[i].is_none()) ==> {
         forall(|j: usize| (i <= j && j < self.arr.len()) ==> self.arr[j].is_none())
     }))]
-    // #[ensures(result.is_err() ==>
-    //     forall(|i: usize| (i < self.arr.len()) ==> self.arr[i].is_some() && old(self.arr[i]) == self.arr[i])
-    // )]
-    // #[ensures(result.is_ok() ==> self.arr[peek_result(&result)].is_some())]
-    // #[ensures(result.is_ok() ==> {
-    //     let val_in_array = peek_option(&self.arr[peek_result(&result)]);
-    //     val_in_array == value
-    // })]
-    // #[ensures(result.is_ok() ==> 
-    //     forall(|i: usize| ((i < self.arr.len()) && (i != peek_result(&result))) ==> old(self.arr[i]) == self.arr[i])
-    // )] 
-    // #[ensures(forall(|i: usize| (i < self.arr.len() && self.arr[i].is_some()) ==> {
-    //     forall(|j: usize| (j < i) ==> self.arr[j].is_some())
-    // }))]
-    // #[ensures(forall(|i: usize| (i < self.arr.len() && self.arr[i].is_none()) ==> {
-    //     forall(|j: usize| (i <= j && j < self.arr.len()) ==> self.arr[j].is_none())
-    // }))]
+    #[ensures(result.is_ok() ==> {
+        let val = self.arr[peek_result(&result)];
+        val.is_some() && peek_option(&val) == value
+    })]
+    // #[ensures(result.is_ok() ==> /* FILL IN */ )] 
+    // #[ensures( /* FILL IN */)] // HINT: look at the pre-condition
+    // #[ensures( /* FILL IN */)] // HINT: look at the pre-condition
 	pub(crate) fn push(&mut self, value: usize) -> Result<usize,()> {
         let mut i = 0;
 
         while i < self.arr.len() {
             body_invariant!(i < self.arr.len());
-            // body_invariant!(forall(|j: usize| ((j < i) ==> self.arr[j].is_some())));
 
             if self.arr[i].is_none() {
                 self.arr[i] = Some(value);

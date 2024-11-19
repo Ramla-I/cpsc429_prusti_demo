@@ -5,6 +5,7 @@ pub struct StaticArray {
 }
 
 impl StaticArray {
+    #[ensures(result.len() == 32)]
     pub const fn new() -> Self {
         StaticArray {
             arr: [None; 32],
@@ -25,18 +26,4 @@ impl StaticArray {
     pub fn lookup(&self, index: usize) -> Option<usize> {
         self.arr[index]
     }
-
-	pub(crate) fn push(&mut self, value: usize) -> Result<usize,()> {
-        let mut i = 0;
-
-        while i < self.arr.len() {
-            // body_invariant!(i < self.arr.len());
-            if self.arr[i].is_none() {
-                self.arr[i] = Some(value);
-                return Ok(i)
-            }
-            i += 1;
-        }
-        return Err(());
-	}
 }
