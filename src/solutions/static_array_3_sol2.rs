@@ -50,11 +50,18 @@ impl StaticArray {
     #[ensures(result.is_ok() ==> 
         forall(|i: usize| ((i < self.arr.len()) && (i != peek_result(&result))) ==> old(self.arr[i]) == self.arr[i])
     )] 
+    #[ensures(forall(|i: usize| (i < self.arr.len() && self.arr[i].is_some()) ==> {
+        forall(|j: usize| (j < i) ==> self.arr[j].is_some())
+    }))]
+    #[ensures(forall(|i: usize| (i < self.arr.len() && self.arr[i].is_none()) ==> {
+        forall(|j: usize| (i <= j && j < self.arr.len()) ==> self.arr[j].is_none())
+    }))]
 	pub(crate) fn push(&mut self, value: usize) -> Result<usize,()> {
         let mut i = 0;
 
         while i < self.arr.len() {
             body_invariant!(i < self.arr.len());
+            body_invariant!(forall(|j: usize| ((j < i) ==> self.arr[j].is_some())));
 
             if self.arr[i].is_none() {
                 self.arr[i] = Some(value);
